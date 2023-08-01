@@ -1,6 +1,7 @@
 import scrapy
 from scrapy.crawler import CrawlerProcess
 import logging
+import pandas as pd
 
 class Amazon_Laptops_Crawler(scrapy.Spider):
     name = "amazon_laptops_crawler"
@@ -14,7 +15,9 @@ class Amazon_Laptops_Crawler(scrapy.Spider):
         laptop_divs = response.xpath('//div[@class="sg-col-4-of-24 sg-col-4-of-12 s-result-item s-asin sg-col-4-of-16 sg-col s-widget-spacing-small sg-col-4-of-20"]')
         short_descs_list = laptop_divs.xpath('.//span[@class="a-size-base-plus a-color-base a-text-normal"]/text()').extract()
         price_list = laptop_divs.xpath('.//span[@class="a-price-whole"]/text()').extract()
-        desc_and_price.update(dict(zip(short_descs_list, price_list)))
+        final_df['laptop_names']=short_descs_list
+        final_df['prices(AED)']=price_list
+        # desc_and_price.update(dict(zip(short_descs_list, price_list)))
         url_list = response.xpath('//a[@class="a-link-normal s-underline-text s-underline-link-text s-link-style a-text-normal"]/@href').extract()
         base_url = 'https://www.amazon.ae'
         for webpage in url_list:
@@ -22,15 +25,21 @@ class Amazon_Laptops_Crawler(scrapy.Spider):
 
     # parses the laptop extended description
     def parse_back(self, response):
-        temp = response.xpath('//*[@id="productOverview_feature_div"]')
-        temp2 = temp.xpath('.//div[@class="a-section a-spacing-small a-spacing-top-small"]/table/tbody')
-        temp3 = temp2.xpath('.//tr/td[@class="a-span3"]/span/text()').extract()
-        logging.info(f'The temp object is: {temp3}')
+        temp = response.css('table.a-normal.a-spacing-micro')
+        temp2 = temp.xpath('.//tr[contains(@class, "a-spacing-small")]')
+        keys = temp2.xpath('.//td[@class="a-span3"]/span/text()').extract()
+        values = temp2.xpath('.//td[@class="a-span9"]/span/text()').extract()
+        temp_dict = dict(zip(keys, values))
+        extended_desc_list.append(temp_dict)
 
 
-logging.basicConfig(level=logging.INFO)
-desc_and_price = dict()
+# logging.basicConfig(level=logging.INFO)
+extended_desc_list = list()
+final_df = pd.DataFrame()
 
 process = CrawlerProcess()
 process.crawl(Amazon_Laptops_Crawler)
 process.start()    
+
+final_df['extended_specs'] = extended_desc_list
+final_df.to_csv('amazon_laptop_result.csv', encoding='utf-8')
