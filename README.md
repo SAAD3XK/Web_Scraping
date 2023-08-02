@@ -6,7 +6,7 @@ In this project, I used scrapy to scrape amazon webpages detailing laptop inform
 - All the info is saved to a pandas dataframe that is stored locally.
 
 ## books.toscrape.com
-Similarly in this part, I've used scrapy's crawler to extract and book info.
+Similarly in this part, I've used scrapy's crawler to extract book info.
 - The book titles and prices are extracted from the main index page along with each book's url
 - Each book's main page is followed by the crawler using the href and the book description is extracted and appended to a list
 - All the lists (titles, prices, urls, descriptions) are added as columns to a pandas dataframe which is further stored as a csv locally
