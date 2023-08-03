@@ -18,7 +18,7 @@ class Books_Crawler(scrapy.Spider):
         # extracting titles of all 20 books
         titles_list = book_divs.xpath('.//h3/a/@title').extract()
 
-        # extracting prices of all 20 books
+        # extracting urls of all 20 books
         price_list = book_divs.xpath('.//p[@class="price_color"]/text()').extract()
 
         # extracting prices of all 20 books
